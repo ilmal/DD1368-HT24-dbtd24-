@@ -1,0 +1,17 @@
+version: '3.5'
+
+services:
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: dbas
+      POSTGRES_PASSWORD: pass123
+      POSTGRES_DB: dbas
+      PGDATA: /data/postgres
+      PGPORT: 5432
+    volumes:
+       - ./postgres:/data/postgres
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+
