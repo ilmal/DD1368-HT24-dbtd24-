@@ -1,0 +1,31 @@
+WITH registration AS (
+    -- Step 1: Determine the registration date for each user
+    SELECT 
+        users.UserID, 
+        users.name, 
+        MIN(subscription.date) AS registration_date
+    FROM 
+        users
+    INNER JOIN 
+        subscription ON users.UserID = subscription.UserID
+    GROUP BY 
+        users.UserID, users.name
+)
+SELECT
+    registration.name,
+    -- Step 3: Check if the user has at least one friend
+    EXISTS (
+        SELECT 1 
+        FROM Friend
+        WHERE Friend.UserID = registration.UserID 
+           OR Friend.FriendID = registration.UserID
+    ) AS has_friends,
+    registration.registration_date
+FROM 
+    registration
+-- Step 2: Filter users registered in January
+WHERE 
+    date_part('month', registration.registration_date) = 1
+ORDER BY 
+    registration.name ASC;
+

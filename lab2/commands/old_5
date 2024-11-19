@@ -1,0 +1,37 @@
+WITH RECURSIVE FriendChain AS (
+    -- Base case: start with UserID 20 (Anas)
+    SELECT
+        U.UserID,
+        U.name AS UserName,
+	NULL::INTEGER AS FriendID,
+        ARRAY[U.UserID] AS visited
+    FROM
+        Users U
+    WHERE
+        U.UserID = 20
+
+    UNION ALL
+
+    -- Recursive case: find friends of the current user
+    SELECT
+        F.FriendId AS UserID,
+        U.name AS UserName,
+	F.UserId AS FriendID,
+        visited || F.UserId AS visited
+    FROM
+        FriendChain FC
+    JOIN
+        Friend F ON F.UserID = FC.UserID
+    JOIN
+        Users U ON U.UserID = F.FriendID
+    WHERE
+        NOT F.FriendID = ANY(visited)  -- Avoid cycles
+)
+
+SELECT
+    UserName AS name,
+    UserID AS user_id,
+    FriendID AS friend_id
+FROM
+    FriendChain;
+
