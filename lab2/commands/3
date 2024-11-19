@@ -1,0 +1,81 @@
+WITH WeeklyData AS (
+    -- Generate a series of weeks from 1 to 30
+    SELECT
+        generate_series(1, 30) AS week_number
+),
+StartingDates AS (
+    -- Identify first-time subscriptions
+    SELECT
+        UserID,
+        MIN(date) AS first_subscription_date,
+        date_part('week', MIN(date)) AS first_subscription_week
+    FROM
+        Subscription
+    GROUP BY
+        UserID
+),
+Renewals AS (
+    -- Identify renewals (transactions after the first)
+    SELECT
+        UserID,
+        date,
+        date_part('week', date) AS renewal_week
+    FROM
+        Subscription
+    WHERE
+        date NOT IN (
+            SELECT first_subscription_date FROM StartingDates
+        )
+),
+PostActivity AS (
+    -- Aggregate posts created by week
+    SELECT
+        date_part('week', date) AS post_week,
+        COUNT(*) AS posts_created
+    FROM
+        Post
+    WHERE
+        date_part('week', date) BETWEEN 1 AND 30
+    GROUP BY
+        date_part('week', date)
+),
+AggregatedData AS (
+    -- Aggregate all metrics for each week
+    SELECT
+        w.week_number,
+        COALESCE(sd.subscriptions_started, 0) AS subscriptions_started,
+        COALESCE(r.subscriptions_renewed, 0) AS subscriptions_renewed,
+        COALESCE(p.posts_created, 0) AS posts_created
+    FROM
+        WeeklyData w
+    LEFT JOIN (
+        SELECT
+            first_subscription_week AS week,
+            COUNT(*) AS subscriptions_started
+        FROM
+            StartingDates
+        GROUP BY
+            first_subscription_week
+    ) sd ON w.week_number = sd.week
+    LEFT JOIN (
+        SELECT
+            renewal_week AS week,
+            COUNT(*) AS subscriptions_renewed
+        FROM
+            Renewals
+        GROUP BY
+            renewal_week
+    ) r ON w.week_number = r.week
+    LEFT JOIN PostActivity p ON w.week_number = p.post_week
+)
+-- Final report
+SELECT
+    week_number AS week,
+    subscriptions_started AS new_customers,
+    subscriptions_renewed AS kept_customers,
+    posts_created AS activity
+FROM
+    AggregatedData
+ORDER BY
+    week_number;
+

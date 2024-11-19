@@ -1,0 +1,385 @@
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 16.3 (Debian 16.3-1.pgdg120+1)
+-- Dumped by pg_dump version 16.4
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
+--
+-- Name: event; Type: TABLE; Schema: public; Owner: dbas
+--
+
+CREATE TABLE public.event (
+    eventid integer NOT NULL,
+    userid integer NOT NULL,
+    title character varying(255) NOT NULL,
+    place character varying(255) NOT NULL,
+    start_date date NOT NULL,
+    end_date date NOT NULL,
+    duration integer NOT NULL,
+    attendees integer[],
+    CONSTRAINT chk_start_bf_end CHECK ((start_date <= end_date))
+);
+
+
+ALTER TABLE public.event OWNER TO dbas;
+
+--
+-- Name: friends; Type: TABLE; Schema: public; Owner: dbas
+--
+
+CREATE TABLE public.friends (
+    user_id integer NOT NULL,
+    friend_id integer NOT NULL,
+    CONSTRAINT friends_check CHECK ((user_id <> friend_id))
+);
+
+
+ALTER TABLE public.friends OWNER TO dbas;
+
+--
+-- Name: image_post; Type: TABLE; Schema: public; Owner: dbas
+--
+
+CREATE TABLE public.image_post (
+    postid integer NOT NULL,
+    image_url character varying(255) NOT NULL,
+    filter character varying(255)
+);
+
+
+ALTER TABLE public.image_post OWNER TO dbas;
+
+--
+-- Name: like; Type: TABLE; Schema: public; Owner: dbas
+--
+
+CREATE TABLE public."like" (
+    postid integer NOT NULL,
+    userid integer NOT NULL,
+    "timestamp" date NOT NULL
+);
+
+
+ALTER TABLE public."like" OWNER TO dbas;
+
+--
+-- Name: post; Type: TABLE; Schema: public; Owner: dbas
+--
+
+CREATE TABLE public.post (
+    postid integer NOT NULL,
+    userid integer NOT NULL,
+    title character varying(255),
+    date date NOT NULL,
+    place character varying(255),
+    tags character varying(255)[],
+    CONSTRAINT chk_tag CHECK ((tags <@ ARRAY['crypto'::character varying, 'studying'::character varying, 'question'::character varying, 'social'::character varying])),
+    CONSTRAINT postid_pos_int CHECK ((postid >= 0))
+);
+
+
+ALTER TABLE public.post OWNER TO dbas;
+
+--
+-- Name: subscription; Type: TABLE; Schema: public; Owner: dbas
+--
+
+CREATE TABLE public.subscription (
+    subscriptionid integer NOT NULL,
+    payment_date date NOT NULL,
+    userid integer NOT NULL,
+    payment_method character varying(255) NOT NULL,
+    expiry_date date NOT NULL
+);
+
+
+ALTER TABLE public.subscription OWNER TO dbas;
+
+--
+-- Name: text_post; Type: TABLE; Schema: public; Owner: dbas
+--
+
+CREATE TABLE public.text_post (
+    postid integer NOT NULL,
+    text_content character varying(255) NOT NULL
+);
+
+
+ALTER TABLE public.text_post OWNER TO dbas;
+
+--
+-- Name: user; Type: TABLE; Schema: public; Owner: dbas
+--
+
+CREATE TABLE public."user" (
+    userid integer NOT NULL,
+    full_name character varying(255) NOT NULL
+);
+
+
+ALTER TABLE public."user" OWNER TO dbas;
+
+--
+-- Name: video_post; Type: TABLE; Schema: public; Owner: dbas
+--
+
+CREATE TABLE public.video_post (
+    postid integer NOT NULL,
+    video_url character varying(255) NOT NULL,
+    codec character varying(255) NOT NULL
+);
+
+
+ALTER TABLE public.video_post OWNER TO dbas;
+
+--
+-- Data for Name: event; Type: TABLE DATA; Schema: public; Owner: dbas
+--
+
+COPY public.event (eventid, userid, title, place, start_date, end_date, duration, attendees) FROM stdin;
+2	2	Study Group Meeting But Cooler	Library	2024-11-10	2024-11-10	2	{1,4}
+\.
+
+
+--
+-- Data for Name: friends; Type: TABLE DATA; Schema: public; Owner: dbas
+--
+
+COPY public.friends (user_id, friend_id) FROM stdin;
+1	2
+2	1
+1	3
+3	1
+2	4
+4	2
+3	5
+5	3
+6	1
+1	6
+\.
+
+
+--
+-- Data for Name: image_post; Type: TABLE DATA; Schema: public; Owner: dbas
+--
+
+COPY public.image_post (postid, image_url, filter) FROM stdin;
+2	http://example.com/sunset.jpg	Vintage
+\.
+
+
+--
+-- Data for Name: like; Type: TABLE DATA; Schema: public; Owner: dbas
+--
+
+COPY public."like" (postid, userid, "timestamp") FROM stdin;
+1	2	2024-11-06
+1	3	2024-11-06
+1	4	2024-11-06
+2	1	2024-11-06
+2	3	2024-11-06
+3	1	2024-11-06
+3	2	2024-11-06
+3	4	2024-11-06
+3	5	2024-11-06
+3	6	2024-11-06
+\.
+
+
+--
+-- Data for Name: post; Type: TABLE DATA; Schema: public; Owner: dbas
+--
+
+COPY public.post (postid, userid, title, date, place, tags) FROM stdin;
+1	1	First Text Post	2024-11-06	Online	{studying,question}
+2	2	Beautiful Sunset	2024-11-06	Beach	{social}
+3	3	My Crypto Journey	2024-11-06	Office	\N
+\.
+
+
+--
+-- Data for Name: subscription; Type: TABLE DATA; Schema: public; Owner: dbas
+--
+
+COPY public.subscription (subscriptionid, payment_date, userid, payment_method, expiry_date) FROM stdin;
+1	2024-11-06	1	Credit Card	2024-12-06
+2	2024-11-06	2	PayPal	2024-12-06
+3	2024-11-06	3	Credit Card	2024-12-06
+4	2024-11-06	4	Debit Card	2024-12-06
+5	2024-11-06	5	Credit Card	2024-12-06
+6	2024-11-06	6	PayPal	2024-12-06
+\.
+
+
+--
+-- Data for Name: text_post; Type: TABLE DATA; Schema: public; Owner: dbas
+--
+
+COPY public.text_post (postid, text_content) FROM stdin;
+1	This is my first text post about studying and questions.
+\.
+
+
+--
+-- Data for Name: user; Type: TABLE DATA; Schema: public; Owner: dbas
+--
+
+COPY public."user" (userid, full_name) FROM stdin;
+1	Alice Smith
+2	Bob Johnson
+3	Carol Williams
+4	David Brown
+5	Eve Davis
+6	Frank Miller
+\.
+
+
+--
+-- Data for Name: video_post; Type: TABLE DATA; Schema: public; Owner: dbas
+--
+
+COPY public.video_post (postid, video_url, codec) FROM stdin;
+3	http://example.com/crypto_journey.mp4	H.264
+\.
+
+
+--
+-- Name: event event_pkey; Type: CONSTRAINT; Schema: public; Owner: dbas
+--
+
+ALTER TABLE ONLY public.event
+    ADD CONSTRAINT event_pkey PRIMARY KEY (eventid);
+
+
+--
+-- Name: friends friends_pkey; Type: CONSTRAINT; Schema: public; Owner: dbas
+--
+
+ALTER TABLE ONLY public.friends
+    ADD CONSTRAINT friends_pkey PRIMARY KEY (user_id, friend_id);
+
+
+--
+-- Name: post post_pkey; Type: CONSTRAINT; Schema: public; Owner: dbas
+--
+
+ALTER TABLE ONLY public.post
+    ADD CONSTRAINT post_pkey PRIMARY KEY (postid);
+
+
+--
+-- Name: subscription subscription_pkey; Type: CONSTRAINT; Schema: public; Owner: dbas
+--
+
+ALTER TABLE ONLY public.subscription
+    ADD CONSTRAINT subscription_pkey PRIMARY KEY (subscriptionid);
+
+
+--
+-- Name: user user_pkey; Type: CONSTRAINT; Schema: public; Owner: dbas
+--
+
+ALTER TABLE ONLY public."user"
+    ADD CONSTRAINT user_pkey PRIMARY KEY (userid);
+
+
+--
+-- Name: event event_userid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: dbas
+--
+
+ALTER TABLE ONLY public.event
+    ADD CONSTRAINT event_userid_fkey FOREIGN KEY (userid) REFERENCES public."user"(userid);
+
+
+--
+-- Name: friends friends_friend_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: dbas
+--
+
+ALTER TABLE ONLY public.friends
+    ADD CONSTRAINT friends_friend_id_fkey FOREIGN KEY (friend_id) REFERENCES public."user"(userid);
+
+
+--
+-- Name: friends friends_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: dbas
+--
+
+ALTER TABLE ONLY public.friends
+    ADD CONSTRAINT friends_user_id_fkey FOREIGN KEY (user_id) REFERENCES public."user"(userid);
+
+
+--
+-- Name: image_post image_post_postid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: dbas
+--
+
+ALTER TABLE ONLY public.image_post
+    ADD CONSTRAINT image_post_postid_fkey FOREIGN KEY (postid) REFERENCES public.post(postid);
+
+
+--
+-- Name: like like_postid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: dbas
+--
+
+ALTER TABLE ONLY public."like"
+    ADD CONSTRAINT like_postid_fkey FOREIGN KEY (postid) REFERENCES public.post(postid);
+
+
+--
+-- Name: like like_userid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: dbas
+--
+
+ALTER TABLE ONLY public."like"
+    ADD CONSTRAINT like_userid_fkey FOREIGN KEY (userid) REFERENCES public."user"(userid);
+
+
+--
+-- Name: post post_userid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: dbas
+--
+
+ALTER TABLE ONLY public.post
+    ADD CONSTRAINT post_userid_fkey FOREIGN KEY (userid) REFERENCES public."user"(userid);
+
+
+--
+-- Name: subscription subscription_userid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: dbas
+--
+
+ALTER TABLE ONLY public.subscription
+    ADD CONSTRAINT subscription_userid_fkey FOREIGN KEY (userid) REFERENCES public."user"(userid);
+
+
+--
+-- Name: text_post text_post_postid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: dbas
+--
+
+ALTER TABLE ONLY public.text_post
+    ADD CONSTRAINT text_post_postid_fkey FOREIGN KEY (postid) REFERENCES public.post(postid);
+
+
+--
+-- Name: video_post video_post_postid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: dbas
+--
+
+ALTER TABLE ONLY public.video_post
+    ADD CONSTRAINT video_post_postid_fkey FOREIGN KEY (postid) REFERENCES public.post(postid);
+
+
+--
+-- PostgreSQL database dump complete
+--
+

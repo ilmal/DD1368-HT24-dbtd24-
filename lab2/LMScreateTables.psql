@@ -1,0 +1,107 @@
+CREATE TABLE Users
+(UserID INTEGER PRIMARY KEY,
+name varchar(50)
+);
+
+CREATE TABLE Friend
+(UserID INTEGER,
+FriendID INTEGER,
+PRIMARY KEY (UserID, FriendID),
+CONSTRAINT ids
+           FOREIGN KEY(UserID)
+                   REFERENCES Users(UserID),
+           FOREIGN KEY(FriendID)
+                   REFERENCES Users(UserID)
+);
+
+CREATE TABLE Post
+(PostID INTEGER PRIMARY KEY,
+date DATE,
+UserID INTEGER,
+Title varchar(200),
+Place varchar(200)
+);
+
+CREATE TABLE PostTag
+(PostID INTEGER,
+Tag varchar(50),
+PRIMARY KEY (PostID, Tag),
+CONSTRAINT id
+           FOREIGN KEY(PostID)
+                   REFERENCES Post(PostID)
+);
+
+CREATE TABLE ImagePost
+(PostID INTEGER PRIMARY KEY,
+URL Varchar(100),
+Filter Varchar(50),
+CONSTRAINT id
+           FOREIGN KEY(PostID)
+                   REFERENCES Post(PostID)
+);
+
+CREATE TABLE TextPost
+(PostID INTEGER PRIMARY KEY,
+Text Varchar(100),
+CONSTRAINT id
+           FOREIGN KEY(PostID)
+                   REFERENCES Post(PostID)
+);
+
+CREATE TABLE VideoPost
+(PostID INTEGER PRIMARY KEY,
+URL Varchar(100),
+Codec varchar(50),
+CONSTRAINT id
+           FOREIGN KEY(PostID)
+                   REFERENCES Post(PostID)
+);
+
+CREATE TABLE Likes
+(UserID INTEGER,
+PostID INTEGER,
+date DATE,
+PRIMARY KEY (UserID, PostID),
+CONSTRAINT ids
+           FOREIGN KEY(UserID)
+                   REFERENCES users(UserID),
+           FOREIGN KEY(PostID)
+                   REFERENCES Post(PostID)
+);
+
+CREATE TABLE Event
+(EventID INTEGER PRIMARY KEY,
+Place Varchar(200),
+SDate TIMESTAMP,
+EDate TIMESTAMP,
+creatorID INTEGER,
+Title Varchar(200),
+CONSTRAINT creator
+           FOREIGN KEY(creatorID)
+                   REFERENCES users(UserID)
+);
+
+CREATE TABLE attending
+(UserID INTEGER,
+EventID INTEGER,
+PRIMARY KEY(UserID, EventID),
+CONSTRAINT att
+           FOREIGN KEY(UserID)
+                   REFERENCES users(UserID),
+           FOREIGN KEY(EventID)
+                   REFERENCES Event(EventID)
+);
+
+
+CREATE TABLE Subscription
+(SubscriptionID INTEGER,
+PayMethod Varchar(200),
+UserID INTEGER,
+date DATE,
+PRIMARY KEY (SubscriptionID),
+CONSTRAINT id 
+	   FOREIGN KEY(UserID)
+	   	   REFERENCES users(UserID)
+);
+
+--drop table users,friend,post,posttag,imagepost,textpost,videopost,likes,event,attending,subscription;

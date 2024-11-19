@@ -1,0 +1,35 @@
+WITH PopularPosts AS (
+    SELECT 
+        Post.PostID,
+        Post.Title,
+        COUNT(Likes.UserID) AS LikeCount
+    FROM 
+        Post
+    INNER JOIN 
+        PostTag ON Post.PostID = PostTag.PostID
+    INNER JOIN 
+        Likes ON Post.PostID = Likes.PostID
+    WHERE 
+        PostTag.Tag = '#leadership'
+    GROUP BY 
+        Post.PostID, Post.Title
+),
+RankedPosts AS (
+    SELECT 
+        PostID,
+        Title,
+        RANK() OVER (ORDER BY LikeCount DESC) AS Rank
+    FROM 
+        PopularPosts
+)
+SELECT 
+    PostID,
+    Title,
+    Rank
+FROM 
+    RankedPosts
+WHERE 
+    Rank <= 5
+ORDER BY 
+    Rank ASC, PostID;
+

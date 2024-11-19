@@ -1,0 +1,11 @@
+SELECT 
+    Post.Title,
+    string_agg(PostTag.Tag, ', ') AS Tags
+FROM 
+    Post
+LEFT JOIN 
+    PostTag ON Post.PostID = PostTag.PostID
+GROUP BY 
+    Post.Title
+ORDER BY 
+    Post.Title ASC;
