@@ -1,0 +1,40 @@
+WITH PostLikes AS (
+    -- Get all posts from march + like counts
+    SELECT
+        Post.UserID,
+        Post.PostID,
+        COUNT(Likes.PostID) AS likes_count
+    FROM
+        Post
+    JOIN Likes ON Post.PostID = Likes.PostID
+    WHERE
+        date_part('month', Post.date) = 3
+    GROUP BY
+        Post.UserID,
+        Post.PostID
+),
+
+UserStats AS (
+    -- total posts, total likes, and zero like posts per user
+    SELECT
+        UserID,
+        COUNT(PostID) AS total_posts,
+        SUM(likes_count) AS total_likes,
+        SUM(CASE WHEN likes_count = 0 THEN 1 ELSE 0 END) AS zero_like_posts
+    FROM
+        PostLikes
+    GROUP BY
+        UserID
+)
+
+SELECT
+    Users.name,
+    CASE
+        WHEN total_likes >= 50 AND zero_like_posts = 0 THEN True
+        ELSE False
+    END AS recived_likes
+FROM
+    UserStats
+JOIN Users ON Users.UserID = UserStats.UserID
+ORDER BY
+    Users.name;
