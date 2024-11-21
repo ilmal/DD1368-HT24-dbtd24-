@@ -1,11 +1,10 @@
 WITH RECURSIVE FriendChain AS (
-    -- Base case: start with UserID 20 (Anas)
+    -- Base case: start with Anas
     SELECT
         U.UserID AS user_id,
         U.name AS name,
-        NULL::INTEGER AS friend_id,
         ARRAY[U.UserID] AS visited,
-        0 AS level
+        1 AS depth
     FROM
         Users U
     WHERE
@@ -17,9 +16,8 @@ WITH RECURSIVE FriendChain AS (
     SELECT
         F.FriendID AS user_id,
         U.name AS name,
-        FC.user_id AS friend_id,
         visited || F.FriendID AS visited,
-        level + 1 AS level
+        depth + 1 AS depth
     FROM
         FriendChain FC
     JOIN
@@ -33,6 +31,8 @@ WITH RECURSIVE FriendChain AS (
 SELECT
     name,
     user_id,
-    friend_id
+    LEAD(user_id) OVER (ORDER BY depth) AS friend_id
 FROM
     FriendChain
+ORDER BY
+    depth;
