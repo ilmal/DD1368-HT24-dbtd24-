@@ -3,35 +3,36 @@ WITH RECURSIVE FriendChain AS (
     SELECT
         U.UserID AS user_id,
         U.name AS name,
-        ARRAY[U.UserID] AS visited,
-        1 AS depth
+        ARRAY[U.UserID] AS visited,     -- array with userID as a visited list
+        1 AS depth          -- depth 1 as basecase
     FROM
         Users U
     WHERE
-        U.UserID = 20
+        U.UserID = 20       -- userID is 20 only
 
+    -- joinar rader
     UNION ALL
 
     -- Recursive case: find friends of the current user
     SELECT
-        F.FriendID AS user_id,
-        U.name AS name,
-        visited || F.FriendID AS visited,
-        depth + 1 AS depth
+        F.FriendID AS user_id,      -- find friendIDs 
+        U.name AS name,             
+        visited || F.FriendID AS visited,   -- add friendID to visited
+        depth + 1 AS depth                  -- add 1 to current depth
     FROM
-        FriendChain FC
+        FriendChain FC                      -- from subquery basecase
     JOIN
-        Friend F ON F.UserID = FC.user_id
+        Friend F ON F.UserID = FC.user_id   -- joins friend with FC using userID
     JOIN
-        Users U ON U.UserID = F.FriendID
+        Users U ON U.UserID = F.FriendID    -- joins users with FC using userID and friendID
     WHERE
-        NOT F.FriendID = ANY(visited)  -- Avoid cycles
+        NOT F.FriendID = ANY(visited)  -- Avoid cycles, no visited friendIDs can be used again
 )
 
 SELECT
-    name,
+    name,       
     user_id,
-    LEAD(user_id) OVER (ORDER BY depth) AS friend_id
+    LEAD(user_id) OVER (ORDER BY depth) AS friend_id    -- choose userID (friend) from next row
 FROM
     FriendChain
 ORDER BY

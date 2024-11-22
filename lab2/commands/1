@@ -1,11 +1,15 @@
 SELECT 
+    -- choose columns
     Post.Title,
-    string_agg(PostTag.Tag, ', ') AS Tags
+    string_agg(PostTag.Tag, ', ') AS Tags   -- puts all tags in one string separated by comma
 FROM 
     Post
+-- Join post with tags using PostID
 LEFT JOIN 
     PostTag ON Post.PostID = PostTag.PostID
+-- all unique post titles have one row each
 GROUP BY 
     Post.Title
+-- alphabethical order ascending 
 ORDER BY 
     Post.Title ASC;

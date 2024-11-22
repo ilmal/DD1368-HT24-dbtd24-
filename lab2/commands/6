@@ -3,10 +3,12 @@ WITH PostLikes AS (
     SELECT
         Post.UserID,
         Post.PostID,
-        COUNT(Likes.PostID) AS likes_count
+        COUNT(Likes.PostID) AS likes_count  -- count amount of likes based on postID
     FROM
         Post
+    -- join Likes with PostLikes using postID
     JOIN Likes ON Post.PostID = Likes.PostID
+    -- only month 3 which is march
     WHERE
         date_part('month', Post.date) = 3
     GROUP BY
@@ -18,22 +20,25 @@ UserStats AS (
     -- total posts, total likes, and zero like posts per user
     SELECT
         UserID,
-        COUNT(PostID) AS total_posts,
-        SUM(likes_count) AS total_likes
+        COUNT(PostID) AS total_posts,   -- count amount of posts
+        SUM(likes_count) AS total_likes -- sum of likes for specific user
     FROM
         PostLikes
+    -- each row is unique userID
     GROUP BY
         UserID
 )
 
 SELECT
     Users.name,
+    -- set to true only when total likes are 50 or more
     CASE
         WHEN total_likes >= 50 THEN True
         ELSE False
     END AS recived_likes
 FROM
     UserStats
+-- join users with userStats by userID
 JOIN Users ON Users.UserID = UserStats.UserID
 ORDER BY
     Users.name;

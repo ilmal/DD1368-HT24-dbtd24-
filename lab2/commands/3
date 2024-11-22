@@ -5,67 +5,79 @@ WITH WeeklyData AS (
 ),
 StartingDates AS (
     -- Identify first time subscriptions
+    -- Choose which columns we want
     SELECT
         UserID,
-        MIN(date) AS first_subscription_date,
-        date_part('week', MIN(date)) AS first_subscription_week
+        MIN(date) AS first_subscription_date,   -- Earliest date in subscriptiondate 
+        date_part('week', MIN(date)) AS first_subscription_week  -- plocka ut veckan 
     FROM
         Subscription
     GROUP BY
         UserID
 ),
 Renewals AS (
+    -- choose columns
     SELECT
         s.UserID,
         s.date,
-        date_part('week', s.date) AS renewal_week
+        date_part('week', s.date) AS renewal_week  -- find week of subscription date
     FROM
         Subscription s
+    -- join startingdates with subscription using userID
     INNER JOIN StartingDates sd ON s.UserID = sd.UserID
+    -- check that the subscriptiondate is not the first
     WHERE
         s.date != sd.first_subscription_date
 ),
 PostActivity AS (
     -- posts created by week
     SELECT
+        -- How many posts created on a particular week
         date_part('week', date) AS post_week,
-        COUNT(*) AS posts_created
+        COUNT(*) AS posts_created -- räknar hur många rader group by slår ihop till en
     FROM
         Post
     WHERE
+        -- hämtar endast vecka 1-30
         date_part('week', date) BETWEEN 1 AND 30
     GROUP BY
+        -- gör att det blir en rad per vecka
         date_part('week', date)
 ),
 AggregatedData AS (
     -- Aggregate all metrics for each week
     SELECT
         w.week_number,
+        -- COALESCE replaces NULL values with 0 
         COALESCE(sd.subscriptions_started, 0) AS subscriptions_started,
         COALESCE(r.subscriptions_renewed, 0) AS subscriptions_renewed,
         COALESCE(p.posts_created, 0) AS posts_created
     FROM
         WeeklyData w
+    -- Join all first subscription dates with aggragetd data
     LEFT JOIN (
         SELECT
             first_subscription_week AS week,
-            COUNT(*) AS subscriptions_started
+            COUNT(*) AS subscriptions_started   -- count how many started subscriptions
         FROM
             StartingDates
         GROUP BY
             first_subscription_week
-    ) sd ON w.week_number = sd.week
+    ) sd ON w.week_number = sd.week -- use weeknr to join
+    -- Join all renewals and aggregated data
     LEFT JOIN (
         SELECT
             renewal_week AS week,
-            COUNT(*) AS subscriptions_renewed
+            COUNT(*) AS subscriptions_renewed -- count how many renewed subscriptions
         FROM
             Renewals
         GROUP BY
             renewal_week
     ) r ON w.week_number = r.week
+    -- join postactivity and aggregated data with weeknr
     LEFT JOIN PostActivity p ON w.week_number = p.post_week
 )
+-- choose weeknr, started subscriptions (new customers), renewed (kept), created posts (activity)
 SELECT
     week_number AS week,
     subscriptions_started AS new_customers,

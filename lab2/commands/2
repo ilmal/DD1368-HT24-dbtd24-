@@ -1,16 +1,21 @@
 WITH PopularPosts AS (
+    -- subquery with postid, title and amount of likes
     SELECT 
         Post.PostID,
         Post.Title,
-        COUNT(Likes.UserID) AS LikeCount
+        COUNT(Likes.UserID) AS LikeCount    -- counts likes based on userID
     FROM 
         Post
+    -- joins posttags with popularpost using postID (all posts with tags)
     INNER JOIN 
         PostTag ON Post.PostID = PostTag.PostID
+    -- joins Likes with popularposts using postID (all posts with likes)
     INNER JOIN 
         Likes ON Post.PostID = Likes.PostID
+    -- tag must be #leadership
     WHERE 
         PostTag.Tag = '#leadership'
+    -- must have unique postid and title
     GROUP BY 
         Post.PostID, Post.Title
 ),
@@ -18,18 +23,21 @@ RankedPosts AS (
     SELECT 
         PostID,
         Title,
-        RANK() OVER (ORDER BY LikeCount DESC) AS Rank
+        RANK() OVER (ORDER BY LikeCount DESC) AS Rank   -- RANK func that order descending by likecount
     FROM 
         PopularPosts
 )
+-- choose postID, title, and rank
 SELECT 
     PostID,
     Title,
     Rank
 FROM 
     RankedPosts
+-- choose only top 5 rank
 WHERE 
     Rank <= 5
+-- order ascending
 ORDER BY 
     Rank ASC, PostID;
 

@@ -3,11 +3,13 @@ WITH registration AS (
     SELECT 
         users.UserID, 
         users.name, 
-        MIN(subscription.date) AS registration_date
+        MIN(subscription.date) AS registration_date     -- earliest reg date 
     FROM 
         users
+    -- join subscription with registration using UserID
     INNER JOIN 
         subscription ON users.UserID = subscription.UserID
+    -- userID and name as group
     GROUP BY 
         users.UserID, users.name
 )
@@ -17,6 +19,7 @@ SELECT
     EXISTS (
         SELECT 1 
         FROM Friend
+        -- check if UserID or FriendID is in registration
         WHERE Friend.UserID = registration.UserID 
            OR Friend.FriendID = registration.UserID
     ) AS has_friends,
@@ -25,7 +28,7 @@ FROM
     registration
 -- Step 2: Filter users registered in January
 WHERE 
-    date_part('month', registration.registration_date) = 1
+    date_part('month', registration.registration_date) = 1  -- only january
 ORDER BY 
-    registration.name ASC;
+    registration.name ASC;  -- order ascending alphabethically
 
