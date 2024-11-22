@@ -19,8 +19,7 @@ UserStats AS (
     SELECT
         UserID,
         COUNT(PostID) AS total_posts,
-        SUM(likes_count) AS total_likes,
-        SUM(CASE WHEN likes_count = 0 THEN 1 ELSE 0 END) AS zero_like_posts
+        SUM(likes_count) AS total_likes
     FROM
         PostLikes
     GROUP BY
@@ -30,7 +29,7 @@ UserStats AS (
 SELECT
     Users.name,
     CASE
-        WHEN total_likes >= 50 AND zero_like_posts = 0 THEN True
+        WHEN total_likes >= 50 THEN True
         ELSE False
     END AS recived_likes
 FROM

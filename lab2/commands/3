@@ -1,10 +1,10 @@
 WITH WeeklyData AS (
-    -- Generate a series of weeks from 1 to 30
+    -- Generate 1 to 30
     SELECT
         generate_series(1, 30) AS week_number
 ),
 StartingDates AS (
-    -- Identify first-time subscriptions
+    -- Identify first time subscriptions
     SELECT
         UserID,
         MIN(date) AS first_subscription_date,
@@ -15,20 +15,18 @@ StartingDates AS (
         UserID
 ),
 Renewals AS (
-    -- Identify renewals (transactions after the first)
     SELECT
-        UserID,
-        date,
-        date_part('week', date) AS renewal_week
+        s.UserID,
+        s.date,
+        date_part('week', s.date) AS renewal_week
     FROM
-        Subscription
+        Subscription s
+    INNER JOIN StartingDates sd ON s.UserID = sd.UserID
     WHERE
-        date NOT IN (
-            SELECT first_subscription_date FROM StartingDates
-        )
+        s.date != sd.first_subscription_date
 ),
 PostActivity AS (
-    -- Aggregate posts created by week
+    -- posts created by week
     SELECT
         date_part('week', date) AS post_week,
         COUNT(*) AS posts_created
@@ -68,7 +66,6 @@ AggregatedData AS (
     ) r ON w.week_number = r.week
     LEFT JOIN PostActivity p ON w.week_number = p.post_week
 )
--- Final report
 SELECT
     week_number AS week,
     subscriptions_started AS new_customers,
