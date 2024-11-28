@@ -1,0 +1,14 @@
+SELECT c.name, COUNT(DISTINCT neighbor) AS num_borders 
+FROM (
+    SELECT country1 AS country, country2 AS neighbor
+    FROM borders
+
+    UNION ALL
+
+    SELECT country2 AS country, country1 AS neighbor
+    FROM borders
+) AS all_borders
+JOIN country c ON c.code = all_borders.country
+GROUP BY c.name
+HAVING COUNT(DISTINCT neighbor) = 1
+ORDER BY c.name;
