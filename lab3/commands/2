@@ -1,1 +1,23 @@
+WITH speakers AS (
+    SELECT 
+        spoken.language,
+        CAST(SUM(country.population * (spoken.percentage/100)) AS INTEGER) AS numberspeakers
+    FROM 
+        spoken 
+    JOIN 
+        country 
+    ON 
+        country.code = spoken.country
+    WHERE 
+        country.population IS NOT NULL
+        AND spoken.percentage IS NOT NULL
+    GROUP BY 
+        spoken.language
+)
 
+SELECT 
+    *
+FROM 
+    speakers
+ORDER BY 
+    numberspeakers DESC;

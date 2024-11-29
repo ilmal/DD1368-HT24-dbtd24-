@@ -1,1 +1,1 @@
--- psql postgresql://dbas:pass123@localhost:5432/dbas
+psql postgresql://dbas:pass123@localhost:5432/dbas
