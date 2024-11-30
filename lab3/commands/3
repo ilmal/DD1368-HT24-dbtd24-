@@ -1,0 +1,45 @@
+-- display two countries and their respective gdp and the ratio between them
+SELECT 
+    b.country1,
+    e1.gdp AS gdp1,
+    b.country2,
+    e2.gdp AS gdp2,
+    CASE
+        WHEN e2.gdp != 0 THEN CAST(e1.gdp / e2.gdp AS INTEGER)      -- avoid division with zero 
+        ELSE NULL
+    END AS ratio    -- call the column ratio 
+FROM 
+    borders b
+JOIN
+    economy e1 ON e1.country = b.country1       -- join economy table using country 1
+JOIN 
+    economy e2 ON e2.country = b.country2       -- join economy table using country 2
+WHERE   
+    e1.gdp IS NOT NULL                          -- check not NULL
+    AND e2.gdp IS NOT NULL
+
+UNION ALL           -- make sure its bidirectional e.g. (CN, BHT) AND (BHT, CN) exists and are checked
+
+-- Same logic as above but switch places on country1 and country2
+SELECT 
+    b.country2 AS country1,
+    e2.gdp AS gdp1,
+    b.country1 AS country2,
+    e1.gdp AS gdp2,
+    CASE
+        WHEN e1.gdp != 0 THEN CAST(e2.gdp / e1.gdp AS INTEGER)  
+        ELSE NULL
+    END AS ratio
+FROM 
+    borders b
+JOIN
+    economy e1 ON e1.country = b.country1
+JOIN 
+    economy e2 ON e2.country = b.country2
+WHERE   
+    e1.gdp IS NOT NULL
+    AND e2.gdp IS NOT NULL
+
+-- order all results in descending order depending on ratio 
+ORDER BY
+    ratio DESC;

@@ -1,20 +1,21 @@
+-- create a speakers table thing
 WITH speakers AS (
+    -- select language and number of speakers
     SELECT 
         spoken.language,
-        CAST(SUM(country.population * (spoken.percentage/100)) AS INTEGER) AS numberspeakers
+        CAST(SUM(country.population * (spoken.percentage/100)) AS INTEGER) AS numberspeakers    -- calculate speakers
     FROM 
-        spoken 
+        spoken      -- table we retrieve info from
     JOIN 
-        country 
-    ON 
-        country.code = spoken.country
+        country ON country.code = spoken.country        -- join with country table
     WHERE 
-        country.population IS NOT NULL
+        country.population IS NOT NULL                  -- null constraints
         AND spoken.percentage IS NOT NULL
+    -- merge rows with same language so we can sum up total amount speakers of specific language in diff countries
     GROUP BY 
-        spoken.language
+        spoken.language                                 -- group by spoken languages
 )
-
+-- display info in descending order
 SELECT 
     *
 FROM 
