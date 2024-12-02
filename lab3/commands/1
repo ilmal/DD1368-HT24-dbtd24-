@@ -1,5 +1,10 @@
+-- assign 1: Of the countries that have any land borders with other countries, 
+-- show a list of those who ONLY have the lowest number of bordering land neighbors.
+
 -- columns name from country table and column number of borders
-SELECT c.name, COUNT(DISTINCT neighbor) AS num_borders 
+SELECT 
+    c.name, 
+    COUNT(DISTINCT neighbor) AS num_borders 
 FROM (
     -- match country1 with neighbor 
     SELECT 

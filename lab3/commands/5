@@ -1,0 +1,51 @@
+WITH RECURSIVE river_path AS (
+    -- base case
+    SELECT 
+        r.name,
+        r.length,
+        ARRAY[r.river, r.name]::character varying[] AS visited,
+        1 AS rank
+    FROM 
+        river r
+    WHERE 
+        r.river IN ('Nile', 'Amazonas', 'Yangtze', 'Rhein', 'Donau', 'Mississippi')
+    
+    UNION ALL
+
+    SELECT 
+        r.name,
+        rp.length + r.length AS length,
+        rp.visited ||r.name AS visited,
+        rp.rank + 1 AS rank
+    FROM 
+        river_path rp
+    JOIN
+        river r ON r.river = rp.name 
+    WHERE 
+        NOT r.name = ANY (rp.visited)
+),
+
+longest_branches AS (
+    SELECT 
+        rp.name,
+        rp.length,
+        rp.rank,
+        rp.visited,
+        COUNT(*) OVER (PARTITION BY rp.name 
+            ORDER BY rp.rank DESC) AS river_count
+    FROM 
+        river_path rp
+)
+
+SELECT
+    lb.rank AS rank,
+    lb.visited AS river_path,  
+    lb.river_count AS numRivers,
+    lb.length AS total_length
+    
+FROM 
+    longest_branches lb
+WHERE 
+    lb.rank = (SELECT MAX(rank) FROM longest_branches WHERE name = lb.name)  
+ORDER BY 
+    lb.rank;

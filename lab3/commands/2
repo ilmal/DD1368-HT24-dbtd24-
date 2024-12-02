@@ -1,3 +1,7 @@
+-- assign 2: Write a query for all the languages in the database, 
+-- that states number of speakers and sorts them from 
+-- most spoken to least spoken.
+
 -- create a speakers table thing
 WITH speakers AS (
     -- select language and number of speakers

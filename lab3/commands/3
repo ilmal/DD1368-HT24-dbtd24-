@@ -1,3 +1,6 @@
+-- assign 3: Which bordering countries have the greatest contrast in wealth?
+-- We define wealth as GDP.
+
 -- display two countries and their respective gdp and the ratio between them
 SELECT 
     b.country1,

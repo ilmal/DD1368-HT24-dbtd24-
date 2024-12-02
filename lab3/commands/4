@@ -1,3 +1,9 @@
+-- PLUS 1: Present a table of the countries that can be reached from Sweden 
+-- crossing a land border no more than 5 times, provided you never double 
+-- back over a border you have already crossed. Your answer should show 
+-- the country code and the name of the country along with the minimal 
+-- number of crossings required to reach it.
+
 WITH RECURSIVE Countries_Reached AS (
     -- Base case
     SELECT 
