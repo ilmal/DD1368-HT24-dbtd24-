@@ -1,0 +1,60 @@
+WITH RECURSIVE Countries_Reached AS (
+    -- Base case
+    SELECT 
+        b.country2 AS code,     -- retrieve country code of neighbor
+        c.name AS name,         -- retrieve country name of neighbor
+        ARRAY['S', b.country2] AS visited,      -- put sweden and current neighbor in visited array
+        1 AS borders_crossed                -- set borders crosssed to 1 since only one border has been crossed
+    FROM (
+        -- temp. bidirectional borders table
+        SELECT country1, country2 FROM borders      -- normal borders table
+        UNION
+        SELECT country2 AS country1, country1 AS country2 FROM borders  -- combined with one where country1 & country2 switches places
+    ) b
+    JOIN 
+        country c ON c.code = b.country2    -- join country and borders table to retrieve country name
+    WHERE
+        b.country1 = 'S'                    -- sweden 'S' is base case
+
+    -- combine
+    UNION ALL
+
+    -- Recursive case: Expand the level of neighboring countries
+    SELECT 
+        b.country2 AS code,
+        c.name AS name,
+        cr.visited || b.country2 AS visited,            -- add next neighbor to visited array
+        cr.borders_crossed + 1 AS borders_crossed   -- add 1 to amoutn of borders crossed
+    FROM (
+        -- same logic w temporary table for bidirectional borders
+        SELECT country1, country2 FROM borders
+        UNION
+        SELECT country2 AS country1, country1 AS country2 FROM borders
+    ) b
+    JOIN 
+        country c ON c.code = b.country2    -- join with country table to retrieve countryname
+    JOIN    
+        Countries_Reached cr ON cr.code = b.country1    -- link with previous countries
+    WHERE
+        b.country2 <> ALL (cr.visited)  -- Ensure new country is not visited
+        AND cr.borders_crossed < 5 -- Limit to 5 border crossings
+)
+
+-- main query to retrieve wanted info
+SELECT 
+    cr.code,
+    cr.name,
+    cr.borders_crossed AS min   -- We want to display 'min' on tablehead
+FROM (
+    SELECT 
+        code,
+        name,
+        MIN(borders_crossed) AS borders_crossed     -- minimum border crossings
+    FROM 
+        Countries_Reached   -- using recursive table
+    GROUP BY 
+        code, name          -- group be country and use minimum val on borders_crossed
+) cr
+ORDER BY 
+    cr.borders_crossed,         -- order firstly by number of crossed borders
+    cr.name;                    -- order by name secondary
