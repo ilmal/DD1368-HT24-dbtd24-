@@ -2,30 +2,42 @@
 -- show a list of those who ONLY have the lowest number of bordering land neighbors.
 
 -- columns name from country table and column number of borders
+WITH neighbor_counts AS (
+    SELECT 
+        c.name, 
+        COUNT(DISTINCT neighbor) AS num_borders     -- amount of distinct neighbors count
+    FROM (
+        -- match country1 with neighbor 
+        SELECT 
+            country1 AS country, 
+            country2 AS neighbor
+        FROM 
+            borders
+
+        -- add all bidirectional relationships as two rows
+        UNION ALL
+
+        -- match country2 with neighbor 
+        SELECT 
+            country2 AS country, 
+            country1 AS neighbor
+        FROM 
+            borders
+    ) AS all_borders        -- table all_borders created from subquery thing
+    JOIN 
+        country c ON c.code = all_borders.country      -- join country with all_borders table using country code
+    GROUP BY 
+        c.name                                       -- group by countryname 
+    HAVING 
+        COUNT(DISTINCT neighbor) > 0                 -- Check that it actually has neighbors
+)
+
 SELECT 
-    c.name, 
-    COUNT(DISTINCT neighbor) AS num_borders 
-FROM (
-    -- match country1 with neighbor 
-    SELECT 
-        country1 AS country, 
-        country2 AS neighbor
-    FROM 
-        borders
-
-    -- add all bidirectional relationships as two rows
-    UNION ALL
-
-    -- match country2 with neighbor 
-    SELECT 
-        country2 AS country, 
-        country1 AS neighbor
-    FROM 
-        borders
-) AS all_borders        -- table all_borders created from subquery thing
-JOIN 
-    country c ON c.code = all_borders.country      -- join country with all_borders table using country code
-GROUP BY 
-    c.name                                     -- group by countryname 
-HAVING 
-    COUNT(DISTINCT neighbor) = 1;                 -- with only one distinct neighbor
+    nc.name,
+    nc.num_borders
+FROM
+    neighbor_counts nc
+WHERE 
+    nc.num_borders = (SELECT MIN(num_borders) FROM neighbor_counts) -- Filter for the minimum number of neighbors
+ORDER BY 
+    nc.name;

@@ -49,13 +49,6 @@ maximum_ranks AS (
         lb.main_river
 )
 
--- SELECT 
---     *
--- FROM 
---     maximum_ranks
--- ORDER BY    
---     max_rank;
-
 SELECT
     lb.rank AS rank,
     array_to_string(lb.visited, ' - ') AS river_path,
