@@ -2,11 +2,13 @@ WITH RECURSIVE river_path AS (
     -- base case
     SELECT 
         r.name,
-        r.length,
+        main_r.length + r.length AS total_length,       -- store mainriver length in total_length
         ARRAY[r.river, r.name]::character varying[] AS visited,
         1 AS rank
     FROM 
         river r
+    JOIN
+        river main_r ON main_r.name = r.river       -- retrieve length of main river 
     WHERE 
         r.river IN ('Nile', 'Amazonas', 'Yangtze', 'Rhein', 'Donau', 'Mississippi')
     
@@ -14,8 +16,8 @@ WITH RECURSIVE river_path AS (
 
     SELECT 
         r.name,
-        rp.length + r.length AS length,
-        rp.visited ||r.name AS visited,
+        rp.total_length + r.length AS length,
+        rp.visited || r.name AS visited,
         rp.rank + 1 AS rank
     FROM 
         river_path rp
@@ -27,25 +29,41 @@ WITH RECURSIVE river_path AS (
 
 longest_branches AS (
     SELECT 
+        rp.visited[1] AS main_river,
         rp.name,
-        rp.length,
+        rp.total_length,
         rp.rank,
         rp.visited,
-        COUNT(*) OVER (PARTITION BY rp.name 
-            ORDER BY rp.rank DESC) AS river_count
+        array_length(rp.visited, 1) AS river_count
     FROM 
         river_path rp
+),
+
+maximum_ranks AS (
+    SELECT  
+        lb.main_river,
+        MAX(rank) AS max_rank
+    FROM 
+        longest_branches lb
+    GROUP BY 
+        lb.main_river
 )
+
+-- SELECT 
+--     *
+-- FROM 
+--     maximum_ranks
+-- ORDER BY    
+--     max_rank;
 
 SELECT
     lb.rank AS rank,
-    lb.visited AS river_path,  
+    array_to_string(lb.visited, ' - ') AS river_path,
     lb.river_count AS numRivers,
-    lb.length AS total_length
-    
+    lb.total_length AS total_length
 FROM 
     longest_branches lb
-WHERE 
-    lb.rank = (SELECT MAX(rank) FROM longest_branches WHERE name = lb.name)  
+JOIN    
+    maximum_ranks mr ON mr.max_rank = lb.rank AND mr.main_river = lb.visited[1]
 ORDER BY 
-    lb.rank;
+    lb.rank, lb.total_length DESC;
