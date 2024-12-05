@@ -1,22 +1,36 @@
+-- PLUS 2: Consider a river system as a main river and all the tributary rivers 
+-- that flow into it, and their respective tributary rivers and so on. 
+-- Present a table that shows the names of the rivers of the longest branch(es)* 
+-- of each river system and the total length of each shown branch, as well as the number 
+-- of rivers in each and the rank of the number of rivers in the branch. Start from the 
+-- rivers the Nile, Amazonas, Yangtze, Rhein, Donau and Mississippi and explore from there. 
+-- You are allowed to hard-code the names of those rivers.
+
+-- * Longest, in terms of the number of rivers in the displayed branch. 
+-- For example, the longest branch of Yangtze has two rivers so include 
+-- all branches of the Yangtze with 2 rivers.
+
+
 WITH RECURSIVE river_path AS (
     -- base case
     SELECT 
-        r.name,
-        main_r.length + r.length AS total_length,       -- store mainriver length in total_length
+        r.name,             -- name of tributary river
+        main_r.length + r.length AS total_length,       -- store main_river length in total_length
         ARRAY[r.river, r.name]::character varying[] AS visited,
         1 AS rank
     FROM 
         river r
     JOIN
-        river main_r ON main_r.name = r.river       -- retrieve length of main river 
+        river main_r ON main_r.name = r.river       -- join with row for main river (r.river: Nile, Amazonas, etc...)
     WHERE 
-        r.river IN ('Nile', 'Amazonas', 'Yangtze', 'Rhein', 'Donau', 'Mississippi')
+        r.river IN ('Nile', 'Amazonas', 'Yangtze', 'Rhein', 'Donau', 'Mississippi') -- Hardcode starting main rivers
     
     UNION ALL
 
+    -- Recursive case: find branches 
     SELECT 
         r.name,
-        rp.total_length + r.length AS length,
+        rp.total_length + r.length AS total_length,       -- add 
         rp.visited || r.name AS visited,
         rp.rank + 1 AS rank
     FROM 

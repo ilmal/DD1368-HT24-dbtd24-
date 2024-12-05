@@ -17,7 +17,7 @@ WITH PostLikes AS (
 ),
 
 UserStats AS (
-    -- total posts, total likes, and zero like posts per user
+    -- total posts, total likes
     SELECT
         UserID,
         COUNT(PostID) AS total_posts,   -- count amount of posts

@@ -3,8 +3,9 @@ WITH RECURSIVE FriendChain AS (
     SELECT
         U.UserID AS user_id,
         U.name AS name,
-        ARRAY[U.UserID] AS visited,     -- array with userID as a visited list
-        1 AS depth          -- depth 1 as basecase
+        ARRAY[U.UserID] AS visited,     -- array with userID as a visited list (only 20 rn)
+        -- depth = how far from first user we are
+        1 AS depth          -- depth 1 as basecase -> used for sorting and LEAD
     FROM
         Users U
     WHERE
@@ -32,8 +33,10 @@ WITH RECURSIVE FriendChain AS (
 SELECT
     name,       
     user_id,
-    LEAD(user_id) OVER (ORDER BY depth) AS friend_id    -- choose userID (friend) from next row
+    -- choose userID from next row based on depth and put as friend_id on current row
+    LEAD(user_id) OVER (ORDER BY depth) AS friend_id    
 FROM
     FriendChain
+-- sort by depth 
 ORDER BY
     depth;
