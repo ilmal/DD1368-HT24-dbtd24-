@@ -1,0 +1,9 @@
+SELECT 
+    p.name 
+FROM 
+    province p
+JOIN
+    country c ON c.code = p.country
+WHERE 
+    p.name='Stockholm' 
+    AND c.name='Sweden';

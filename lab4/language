@@ -1,0 +1,27 @@
+WITH speakers AS (
+    SELECT 
+        s.language,
+        c.name AS country_name,
+        CAST(SUM(c.population * (s.percentage/100)) AS INTEGER) AS speakers
+    FROM 
+        spoken s
+    JOIN 
+        country c ON c.code = s.country
+    WHERE 
+        c.population IS NOT NULL 
+        AND s.percentage IS NOT NULL 
+    GROUP BY
+        s.language, c.name
+    ORDER BY
+        s.language ASC
+)
+SELECT
+    sp.country_name,
+    sp.speakers
+FROM 
+    speakers sp
+WHERE 
+    sp.language = 'Swedish'
+ORDER BY
+    sp.country_name ASC
+;
