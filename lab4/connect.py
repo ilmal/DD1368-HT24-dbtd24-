@@ -123,7 +123,7 @@ def create_desert():
     cur.execute(find_geodesert, (desert_name, ))
     existing_geodesert = cur.fetchone()
     if (existing_geodesert):
-        print(f"Desert '{existing_geodesert}' already exists for the specified name in the table 'geo_desert'.")
+        print(f"Geodesert '{existing_geodesert}' already exists for the specified name in the table 'geo_desert'.")
     else: 
         # Construct the INSERT query
         insert_geodesert = """
@@ -138,13 +138,13 @@ def create_desert():
     find_desert = """
     SELECT name 
     FROM desert 
-    WHERE coordinates = ROW(%s, %s)::geocoord
-    AND name = %s;
+    WHERE name = %s;
     """
-    cur.execute(find_desert, (desert_latitude, desert_longitude, desert_name))
+    cur.execute(find_desert, (desert_name, ))
     existing_desert = cur.fetchone()
-    if existing_desert is not None:
-        print(f"Desert '{existing_desert}' already exists at the specified coordinates in the table 'desert'.")
+    if existing_desert:
+        print(f"Desert '{existing_desert}' already exists at the specified name in the table 'desert'.")
+        return
     if existing_desert is None:
         insert_desert = f"""
         INSERT INTO desert (name, area, coordinates)
