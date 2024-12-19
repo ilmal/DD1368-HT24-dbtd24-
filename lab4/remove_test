@@ -1,0 +1,13 @@
+DELETE FROM geo_desert WHERE desert IN (
+    'Mystic Sands', 'Desert A', 'Desert B', 'Desert C', 'Desert D', 'Desert E',
+    'Desert F', 'Desert G', 'Desert H', 'Desert I', 'Desert J', 'Desert K',
+    'Desert L', 'Desert M', 'Desert N', 'Desert O', 'Desert P', 'Desert Q',
+    'Desert R', 'Desert S', 'Desert T', 'Crystal Dunes', 'Endless Sands'
+);
+
+DELETE FROM desert WHERE name IN (
+    'Mystic Sands', 'Desert A', 'Desert B', 'Desert C', 'Desert D', 'Desert E',
+    'Desert F', 'Desert G', 'Desert H', 'Desert I', 'Desert J', 'Desert K',
+    'Desert L', 'Desert M', 'Desert N', 'Desert O', 'Desert P', 'Desert Q',
+    'Desert R', 'Desert S', 'Desert T', 'Crystal Dunes', 'Endless Sands'
+);

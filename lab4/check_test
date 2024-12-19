@@ -1,0 +1,54 @@
+-- Desert spans exactly 9 provinces (valid)
+INSERT INTO geo_desert (desert, country, province) VALUES
+('Mystic Sands', 'USA', 'California'),
+('Mystic Sands', 'USA', 'Nevada'),
+('Mystic Sands', 'USA', 'Arizona'),
+('Mystic Sands', 'USA', 'Utah'),
+('Mystic Sands', 'USA', 'New Mexico'),
+('Mystic Sands', 'USA', 'Colorado'),
+('Mystic Sands', 'USA', 'Texas'),
+('Mystic Sands', 'USA', 'Oklahoma'),
+('Mystic Sands', 'USA', 'Kansas');
+
+-- Fails:
+-- INSERT INTO geo_desert (desert, country, province) VALUES
+-- ('Mystic Sands', 'USA', 'Wyoming');
+
+-- Country with exactly 20 deserts (valid)
+INSERT INTO geo_desert (desert, country, province) VALUES
+('Desert A', 'MEX', 'Sonora'),
+('Desert B', 'MEX', 'Chihuahua'),
+('Desert C', 'MEX', 'Coahuila'),
+('Desert D', 'MEX', 'Durango'),
+('Desert E', 'MEX', 'Zacatecas'),
+('Desert F', 'MEX', 'Jalisco'),
+('Desert G', 'MEX', 'Michoacán'),
+('Desert H', 'MEX', 'Veracruz'),
+('Desert I', 'MEX', 'Oaxaca'),
+('Desert J', 'MEX', 'Yucatán'),
+('Desert K', 'MEX', 'Baja California'),
+('Desert L', 'MEX', 'Baja California Sur'),
+('Desert M', 'MEX', 'Nayarit'),
+('Desert N', 'MEX', 'Tamaulipas'),
+('Desert O', 'MEX', 'Puebla'),
+('Desert P', 'MEX', 'Guerrero'),
+('Desert Q', 'MEX', 'Hidalgo'),
+('Desert R', 'MEX', 'Tabasco'),
+('Desert S', 'MEX', 'Campeche'),
+('Desert T', 'MEX', 'Quintana Roo');
+
+-- Fails: 
+-- INSERT INTO geo_desert (desert, country, province) VALUES
+-- ('Desert U', 'MEX', 'Colima');
+
+-- Desert area is at most 30 times the largest province it occupies (valid)
+INSERT INTO desert (name, area, coordinates) VALUES
+('Crystal Dunes', 179503 * 30, ROW(25.0, 15.0)::geocoord);
+
+-- Adding association with the province
+INSERT INTO geo_desert (desert, country, province) VALUES
+('Crystal Dunes', 'MEX', 'Sonora');
+
+-- Fails: 
+-- Insert United States, Wyoming, area=7544100+1 
+

@@ -92,7 +92,7 @@ def create_desert():
 
     # if location doesnt exist
     if len(location_exists) == 0:
-        print("Location not found\n")
+        print("\nLocation not found")
         return
     
     # more user inputs
@@ -116,13 +116,14 @@ def create_desert():
         raise ValueError(f"Country '{desert_country}' not found in the database.")
 
     find_geodesert = """
-    SELECT desert 
+    SELECT desert, province 
     FROM geo_desert 
     WHERE desert = %s;
     """
     cur.execute(find_geodesert, (desert_name, ))
-    existing_geodesert = cur.fetchone()
-    if (existing_geodesert):
+    existing_geodesert = cur.fetchall()
+    # print(existing_geodesert)
+    if (len(existing_geodesert) != 0 and desert_province in [desert[1] for desert in existing_geodesert]):
         print(f"Geodesert '{existing_geodesert}' already exists for the specified name in the table 'geo_desert'.")
     else: 
         # Construct the INSERT query
@@ -134,7 +135,6 @@ def create_desert():
         cur.execute(insert_geodesert, (desert_name, desert_country_code, desert_province))
         print(f"\nDesert '{desert_name}' created successfully in table 'geo_desert'\n")
 
-    # todo: fix so it enters if-statement
     find_desert = """
     SELECT name 
     FROM desert 
@@ -175,10 +175,10 @@ def check_desert_constraints(desert_name, desert_country, desert_province, deser
     """
     # print("query_count_provinces: " + query_count_provinces)
     cur.execute(query_count_provinces, (desert_name, ))
-    provinces_count = cur.fetchone()[0]
-    # print("provinces_count: " + str(provinces_count))
-    if provinces_count > 9:
-        raise ValueError(f"Desert '{desert_name}' cannot span more than 9 provinces.")
+    provinces_count = cur.fetchall()
+    # print(provinces_count[0][0])
+    if int(provinces_count[0][0]) > 9:
+        raise ValueError(f"\nDesert '{desert_name}' cannot span more than 9 provinces.")
     # print("No error raised check1\n")
 
     # Check 2: A country can only contain a maximum of 20 separate deserts
@@ -194,7 +194,7 @@ def check_desert_constraints(desert_name, desert_country, desert_province, deser
     deserts_count = cur.fetchone()[0]
     # print("deserts_count: " + str(deserts_count))
     if deserts_count >= 20:
-        raise ValueError(f"Country '{desert_country}' cannot have more than 20 deserts.")
+        raise ValueError(f"\nCountry '{desert_country}' cannot have more than 20 deserts.")
     # print("No error raised check2\n")
 
     # Check 3: The area of a desert can be at most 30 times larger 
@@ -210,21 +210,18 @@ def check_desert_constraints(desert_name, desert_country, desert_province, deser
     province_area = cur.fetchone()
     # print("province_area: " + str(province_area))
     if province_area is None:
-        raise ValueError(f"Province '{desert_province}' not found.")
+        raise ValueError(f"\nProvince '{desert_province}' not found.")
     province_area = province_area[0]
     # print("province_area 2: " + str(province_area))
     
     if int(desert_area) > 30 * int(province_area):
         raise ValueError(
-            f"Desert '{desert_name}' cannot have an area more than 30 times larger than province '{desert_province}'."
+            f"\nDesert '{desert_name}' cannot have an area more than 30 times larger than province '{desert_province}'."
         )
     # print("Province area x30: " + str(int(province_area)*30))
     # print("Desert area: " + str(desert_area))
 
 if __name__ == "__main__": 
-    # test constraints
-    # check_desert_constraints('Kalahari', 'Angola', 'Moxico', 1200000)
-
     while True: 
         print("\nMenu:")
         print("1. Search for airports")
